@@ -1,53 +1,97 @@
-This project aims to explore FPGA and ASIC concepts through the design of a phased array radar system. Even if it may not be the most desired approach, as ASICs are cost demanding than FPGA's - where possible, a given part of the design will eventually be dedicated for transforming to an ASIC
+# FPGA-Based Phased Array Radar Project
 
-The project aims at incorporating various concept not necessarily striving for the most optimal design performance but rather focusing on understanding specific aspect through practical implementation.
+This repository documents a long-term learning project focused on FPGA and ASIC concepts through the design of a phased array radar system.
 
-The basis of this project is the use of open-source tools, which are incomparably better than proprietary tools when it comes to deeper understanding of FPGA or ASIC design flow.
+The goal is not to build the most optimized radar implementation from the beginning. Instead, the project is intended as a practical framework for exploring digital design, FPGA SoC construction, open-source EDA tools, RISC-V soft cores, DSP blocks, bus interconnects, and selected ASIC-oriented design-flow concepts.
 
-Radar Principles
+## Motivation
 
-For radars , the reflected echo from the target provides information about distance, velocity, and angle of elevation of the target with respect to the source. The angle of elevation measurement relies of Direction of Arrival (DOA) estimation, also known as spatial spectrum estimation. There are multiple algorithms helping determining this parameter, like for example the Multiple Signal Classification (MUSIC) algorithm. The algorithm estimates the direction based on multiple signal samples received in an antenna array. \[1,2,3\]
+A phased array radar system is a useful learning target because it combines many areas of digital hardware design:
 
-The project will use Scala-based hardware construction frameworks, mainly Chisel and/or SpinalHDL, to describe parameterizable digital hardware. MATLAB, Python or C++ may still be used as reference-modeling and verification environments, but the long-term goal is to express as much synthesizable hardware structure as practical in Scala-based HDL frameworks.
+- high-throughput signal processing,
+- arithmetic blocks such as adders and multipliers,
+- memory and streaming architectures,
+- FPGA-based control logic,
+- bus interconnects,
+- RISC-V soft-core integration,
+- software/hardware co-design,
+- and, in selected parts, possible ASIC-oriented implementation experiments.
 
-As reference designs, the ADALM-PLUTO evaluation board and the CN0566 Phaser are used, both developed by Analog Devices. In the initial phase, the focus will be primarily on the former, a RF Agile Transceiver, as the foundation of the project.
+The project is intentionally broad. Some parts may be implemented only as experiments or reference blocks, while others may later become parts of a more complete radar-oriented FPGA system.
 
-The design will be centered around the GateMate FPGA from Cologne Chip, potentially in multiple instances. A RISC-V soft-core processor will serve as a manager with a Wishbone interface, as the main bus for communication with other components.
+## Open-source design philosophy
 
-LiteX will primarily serve as a reference for FPGA SoC construction and Wishbone integration, whereas Rocket Chip/Chipyard will serve as a reference for Chisel-based SoC generation. Since Rocket Chip does not support the Wishbone interface,an tempt will be made to implement Wishbone integration with the Rocket SoC gnerator. However as this is a demanding attempt, alternative tool combinations such as LiteX with VexRiscv, are also possible. Alternatively, the bus could be changed to **AXI** or **TileLink**, as these are already implemented.
+A major assumption of the project is the use of open-source tools wherever practical. Open-source flows make it easier to study what happens inside the design process: from hardware description, through synthesis, to implementation and verification.
 
-Another feature of the project will be the integration of Linux, derived from a projects like "seL4 on the RISC-V Rocket Chip" \[4\], although such complex solutions as virtualization of the Guest OS will not be required.
+The project is therefore not only about creating hardware modules, but also about understanding the tools and abstractions used to build them.
 
-The rest of the tools, mostly comming into use from the synthesis step are to be determined
+## Radar background
 
-DSP
+In radar systems, the reflected echo from a target can provide information about:
 
-Filtering
+- distance,
+- velocity,
+- and angle of arrival / elevation.
 
-When analyzing the transmit or the receive signal path of the AD9363 (RF Agile Transceiver, one of the basic components of ADALM-Pluto), one can see that both of these paths incorporate a polyphase FIR filter, respectively a interpolator and a decimator. As FIR filters are based on addition and multiplication operations, for experimental purposes several different types of Adders and multipliers can be used
+Angle estimation in antenna arrays is related to Direction of Arrival (DOA) estimation, also called spatial spectrum estimation. Algorithms such as MUSIC can estimate the incoming signal direction based on multiple received signal samples from an antenna array.
 
-Adders:
+## Reference platforms
 
-Carry Look Ahead Adder
+The project uses Analog Devices reference platforms as architectural inspiration:
 
-Carry Safe Adder
+- **ADALM-PLUTO** - an RF Agile Transceiver platform used as the initial reference point,
+- **CN0566 Phaser** - a phased array reference design useful for studying beamforming and radar-related architecture.
 
-Carry Skip Adder
+The initial focus is mainly on ADALM-PLUTO and the AD936x transceiver family.
 
-Carry Select Adder
+## Target FPGA / SoC direction
 
-Multipliers
+The planned digital architecture is centered around the **GateMate FPGA** from Cologne Chip.
 
-Vedic Multiplier
+A RISC-V soft-core processor is planned to act as a manager for configuration and control. The preferred bus direction is currently **Wishbone**, but alternative interconnects such as **AXI** or **TileLink** may also be considered depending on the selected SoC generator and integration complexity.
 
-Booth's Multiplier
+Possible SoC construction paths include:
 
-References
+- **LiteX + VexRiscv** as a practical open-source FPGA SoC direction,
+- **Rocket Chip / Chipyard** as a reference for Chisel-based SoC generation,
+- possible experimentation with Wishbone integration around Rocket Chip, although this is expected to be more demanding because Rocket Chip is based around TileLink rather than Wishbone.
 
-\[1\] Aaltonen, Tuomas. _FPGA Implementation of MUSIC Direction of Arrival Algorithm Using High-Level Synthesis_. 2023.
+## HDL and modeling direction
 
-\[2\]Sikka, P. (2023). High-level synthesis assisted, low-latency, area- and power-optimized FPGA implementation of MUSIC algorithm for direction-of-arrival estimation. _Sustainable Energy Technologies and Assessments_, _57_, 103201. [https://doi.org/10.1016/j.seta.2023.103201](https://doi.org/10.1016/j.seta.2023.103201)
+The project aims to use Scala-based hardware construction frameworks, mainly:
 
-\[3\] Zhou, S.; Zhou, L. Field Programmable Gate Array (FPGA) Implementation of Parallel Jacobi for Eigen-Decomposition in Direction of Arrival (DOA) Estimation Algorithm. _Remote Sens._ **2024**, _16_, 3892. [https://doi.org/10.3390/rs16203892](https://doi.org/10.3390/rs16203892)
+- **Chisel HDL**,
+- and potentially **SpinalHDL**.
 
-\[4\] [https://www.dornerworks.com/blog/sel4-on-risc-v-rocket-chip](https://www.dornerworks.com/blog/sel4-on-risc-v-rocket-chip/)
+MATLAB, Python, or C++ may still be used for reference models, verification, and algorithm exploration. However, the long-term goal is to express as much synthesizable hardware structure as practical in Scala-based HDL frameworks.
+
+## DSP and arithmetic building blocks
+
+Radar and communication systems depend heavily on digital signal processing. FIR filters, FFTs, beamforming, and DOA estimation all require arithmetic structures such as adders, multipliers, and complex-number datapaths.
+
+For this reason, the repository also contains lower-level arithmetic experiments. These are not separate from the radar goal; they are used to understand the building blocks that eventually appear inside DSP and FPGA signal-processing pipelines.
+
+### Implemented / explored components
+
+- [Booth's Multiplier in Chisel HDL](https://github.com/MichalPorazko/Radar_project/tree/main/ChiselHDL/src/main/scala/Multipliers/Booth)
+- [Carry Look-Ahead Adder in Verilog](https://github.com/MichalPorazko/Radar_project/tree/main/Verilog/Adders/Look%20Ahead%20Carry%20Adder)
+- [Vedic Multiplier in Verilog](https://github.com/MichalPorazko/Radar_project/tree/main/Verilog/Multipliers/Vedic%20Multiplier)
+
+Other arithmetic blocks and DSP-oriented modules may be added as the project develops.
+
+## Linux and software direction
+
+Another long-term topic is the integration of a Linux-capable or microkernel-based software layer on top of a RISC-V soft-core system. Projects such as seL4 on RISC-V Rocket Chip are used as inspiration, although full virtualization or a complex guest-OS environment is not required for the initial stages.
+
+## Current status
+
+The project is in an early exploratory phase. The repository currently serves as a place to collect design assumptions, experiments, arithmetic blocks, HDL implementations, and notes related to the future radar architecture.
+
+The main value of the project at this stage is educational: it is used to study how FPGA, RISC-V, bus interconnects, DSP blocks, and open-source hardware design tools can fit together in a realistic system-level context.
+
+## References
+
+1. Aaltonen, T. *FPGA Implementation of MUSIC Direction of Arrival Algorithm Using High-Level Synthesis*. 2023.
+2. Sikka, P. *High-level synthesis assisted, low-latency, area- and power-optimized FPGA implementation of MUSIC algorithm for direction-of-arrival estimation*. Sustainable Energy Technologies and Assessments, 57, 103201, 2023. https://doi.org/10.1016/j.seta.2023.103201
+3. Zhou, S.; Zhou, L. *Field Programmable Gate Array (FPGA) Implementation of Parallel Jacobi for Eigen-Decomposition in Direction of Arrival (DOA) Estimation Algorithm*. Remote Sensing, 16, 3892, 2024. https://doi.org/10.3390/rs16203892
+4. DornerWorks. *seL4 on the RISC-V Rocket Chip*. https://www.dornerworks.com/blog/sel4-on-risc-v-rocket-chip/
